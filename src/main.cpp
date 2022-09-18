@@ -231,7 +231,7 @@ void loop()
     while (ss.available() > 0) //while data is available
         if (gps.encode(ss.read())) //read gps data
         {
-            //GPS >> Koordinat
+            //GPS >> Location (Lat,Long)
             if (gps.location.isValid()&&gps.location.isUpdated()) //check whether gps location is valid
             {
                 latitude = gps.location.lat();
@@ -283,7 +283,7 @@ void loop()
                 battery_percentage = 1;
             }
 
-            //Kirim Data
+            //Send Data
             if (millis()>=ulang+4000) 
             {
                 // Firebase.getFloat(fbdo, "/gtrig");
