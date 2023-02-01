@@ -1,3 +1,16 @@
+/**
+ * @file MAX30102.cpp
+ * @author Hafidh Hidayat (hafidhhidayat@hotmail.com)
+ * @brief 
+ * @version 1.0.0
+ * @date 2022-11-30
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ * Github :
+ * https://github.com/hafidhh
+ */
+
 #include <SoftwareSerial.h>
 #include <ESP8266WiFi.h>
 #include <ArduinoOTA.h>
@@ -8,8 +21,8 @@
  
 #include "heartRate.h"
 
-const char* ssid = "ZTE-972ec0"; //ssid of your wifi
-const char* password = "hf170798"; //password of your wifi
+const char* ssid = "Test"; //ssid of your wifi
+const char* password = "123...123"; //password of your wifi
 
 #define FIREBASE_HOST "skripsi-14e87.firebaseio.com"
 #define FIREBASE_AUTH "uy3sgMcGjgdXRARWBlJlAp24Za9yFCWZ40WxfArn"
@@ -32,6 +45,8 @@ int beatAvg;
 String id;
 bool htrig;
 bool htrigh = true;
+
+long last = 0;
 
 void setup_OTA()
 {
@@ -88,13 +103,15 @@ void setup_OTA()
         }
     });
     ArduinoOTA.begin();
-    Serial.println("Ready");
+    Serial.println("OTA Ready");
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
 }
  
 void setup()
 {
+    pinMode(16,OUTPUT);
+    digitalWrite(16,HIGH);
     Serial.begin(115200);
     ss.begin(9600);
     Serial.println();
@@ -113,12 +130,16 @@ void setup()
 
     setup_OTA();
 
+    Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
+    Firebase.reconnectWiFi(true);
+
+    delay(5000);
+
     Serial.println("Initializing...");
-    
     // Initialize sensor
     if (!particleSensor.begin(Wire, I2C_SPEED_STANDARD)) //Use default I2C port, 400kHz speed
     {
-        Serial.println("MAX30105 was not found. Please check wiring/power. ");
+        Serial.println("MAX30102 was not found. Please check wiring/power. ");
         while (1);
     }
     Serial.println("Place your index finger on the sensor with steady pressure.");
@@ -126,9 +147,6 @@ void setup()
     particleSensor.setup(); //Configure sensor with default settings
     particleSensor.setPulseAmplitudeRed(0x0A); //Turn Red LED to low to indicate sensor is running
     particleSensor.setPulseAmplitudeGreen(0); //Turn off Green LED
-
-    Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
-    Firebase.reconnectWiFi(true);
 }
  
 void loop()
@@ -136,26 +154,8 @@ void loop()
     ArduinoOTA.handle();
     long irValue = particleSensor.getIR();
 
-    // if (checkForBeat(irValue) == true)
-    // {
-    //     htrig = true;
-    // }
-    // else if(checkForBeat(irValue) == false)
-    // {
-    //     htrig = false;
-    // }
+    long now = millis();
 
-    // if (irValue<5000)
-    // {
-    //     htrig = false;
-    // }
-    // else if (irValue>=5000)
-    // {
-    //     htrig = true;
-    // }
-
-
-    
     if (checkForBeat(irValue) == true)
     {
         //We sensed a beat!
@@ -166,6 +166,7 @@ void loop()
         
         if (beatsPerMinute < 255 && beatsPerMinute > 20)
         {
+            Serial.println("cek");
             rates[rateSpot++] = (byte)beatsPerMinute; //Store this reading in the array
             rateSpot %= RATE_SIZE; //Wrap variable
             
@@ -187,37 +188,24 @@ void loop()
     {
         htrig=true;
     }
-    
-    if (htrig != htrigh)
+
+    if ((htrig != htrigh) && (now - last >= 2000))
     {
+        Serial.println("kirim");
         Firebase.setBool(fbdo, id+"/htrig", htrig);
         Serial.println(fbdo.errorReason());
         htrigh = htrig;
+		last = now;
     }
     
-    Serial.print("IR=");
-    Serial.print(irValue);
-    Serial.print(", BPM=");
-    Serial.print(beatsPerMinute);
-    Serial.print(", Avg BPM=");
-    Serial.println(beatAvg);
-
-
-    // htrig = false;
-    
-    // if (irValue < 50000)
-    // {
-    //     Serial.print(" No finger?");
-    //     htrig = true;
-    // }
-        
-    // Serial.println();
-
-    // if (htrig != htrigh)
-    // {
-    //     Firebase.setBool(fbdo, id+"/htrig", htrig);
-    //     Serial.println(fbdo.errorReason());
-    //     htrigh = htrig;
-    // }
-    
+    if (now - last >= 5000)
+    {
+        Serial.print("IR=");
+        Serial.print(irValue);
+        Serial.print(", BPM=");
+        Serial.print(beatsPerMinute);
+        Serial.print(", Avg BPM=");
+        Serial.println(beatAvg);
+        last = now;
+    }
 }
