@@ -1,9 +1,23 @@
+/**
+ * @file Firebase.cpp
+ * @author Hafidh Hidayat (hafidhhidayat@hotmail.com)
+ * @brief 
+ * @version 1.0.0
+ * @date 2022-11-30
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ * Github :
+ * https://github.com/hafidhh
+ */
+
 #include <SoftwareSerial.h>
 #include <ESP8266WiFi.h>
 #include <FirebaseESP8266.h>
+#include <Wire.h>
 
-const char* ssid = "ZTE-972ec0"; //ssid of your wifi
-const char* password = "hf170798"; //password of your wifi
+const char* ssid = "Test"; //ssid of your wifi
+const char* password = "123...123"; //password of your wifi
 
 #define FIREBASE_HOST "skripsi-14e87.firebaseio.com"
 #define FIREBASE_AUTH "uy3sgMcGjgdXRARWBlJlAp24Za9yFCWZ40WxfArn"
