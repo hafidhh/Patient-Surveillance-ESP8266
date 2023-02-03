@@ -1,5 +1,6 @@
 # Tracing-Covid-ESP8266
-Tracing patient using SAM-M8Q GPS modul and using MAX30102 for heart rate monitoring.
+Tracing patient using SAM-M8Q GPS modul and using MAX30102 for heart rate monitoring.  
+this device will send data to Firebase, [app](https://github.com/hafidhh/Patient-Surveillance-APPS) will display the data and show a notification if someone leaves the Geofencing zone (Quarantine zone).
 
 ## Device
 ![Alt text](media/Device.jpg "Device")
