@@ -20,3 +20,6 @@ this device will send data to Firebase, [app](https://github.com/hafidhh/Patient
 - https://www.nodemcu.com/index_en.html  
 - http://www.mateksys.com/?portfolio=m8q-5883
 - https://datasheets.maximintegrated.com/en/ds/MAX30102.pdf
+
+## Related Projects
+- [Patient Surveillance APPS](https://github.com/hafidhh/Patient-Surveillance-APPS)
